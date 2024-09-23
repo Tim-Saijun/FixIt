@@ -669,7 +669,8 @@ class FixIt {
         this._mapboxArr = this._mapboxArr || [];
       }
       this.util.forEach(document.querySelectorAll('.mapbox:empty'), ($mapbox) => {
-        const { lng, lat, zoom, lightStyle, darkStyle, marked, navigation, geolocate, scale, fullscreen } = JSON.parse($mapbox.dataset.options);
+        const { lng, lat, zoom, lightStyle, darkStyle, marked, markers, navigation, geolocate, scale, fullscreen} = JSON.parse($mapbox.dataset.options);
+        console.log(JSON.parse($mapbox.dataset.options))
         const mapbox = new mapboxgl.Map({
           container: $mapbox,
           center: [lng, lat],
@@ -680,6 +681,19 @@ class FixIt {
         });
         if (marked) {
           new mapboxgl.Marker().setLngLat([lng, lat]).addTo(mapbox);
+        }
+        const markerArray = typeof markers === 'string' ? JSON.parse(markers) : markers;
+        if (Array.isArray(markerArray) && markerArray.length > 0) {
+          markerArray.forEach(marker => {
+            const { lng: markerLng, lat: markerLat, description } = marker;
+            console.log(markerLng, markerLat, description);
+            const popup = new mapboxgl.Popup({ offset: 25 }).setText(description); 
+            new mapboxgl.Marker()
+              .setLngLat([markerLng, markerLat])
+              .setPopup(popup)
+              .addTo(mapbox);
+            console.log(markerLng, markerLat, description);
+          });
         }
         if (navigation) {
           mapbox.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
